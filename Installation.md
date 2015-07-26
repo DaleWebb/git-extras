@@ -5,7 +5,7 @@ $ sudo $apt_pref update
 $ sudo $apt_pref install git-extras
 ```
 
-## Mac
+## Macintosh
 
 ```bash
 $ brew install git-extras
