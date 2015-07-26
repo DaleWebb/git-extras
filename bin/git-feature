@@ -3,7 +3,7 @@
 concatargs(){
     delim='-'
     str=
-    for i in "$@";   do 
+    for i in "$@";   do
         str="$str$delim$i"
     done
     branch=feature/${str:1}
@@ -12,14 +12,24 @@ concatargs(){
 if test "$1" = "finish"; then
   test -z $2 && echo "feature <name> required." 1>&2 && exit 1
   branch=feature/$2
-  git merge --no-ff $branch && git delete-branch $branch
+  git checkout develop &> /dev/null
+  git pull &> /dev/null
+  git merge --no-ff $branch
+  git push
+  git delete-branch $branch &> /dev/null
+elif test "$1" = "publish"; then
+  test -z $2 && echo "feature <name> required." 1>&2 && exit 1
+  branch=feature/$2
+  git checkout $branch
+  git push -u origin $branch
 else
   test -z $1 && echo "feature <name> required." 1>&2 && exit 1
   if test -n "$2"; then
     concatargs ${@:2}
-  else 
+  else
     branch=feature/$1
   fi
+  git checkout develop &> /dev/null
   git checkout -b $branch &> /dev/null
   test -n $? && git checkout $branch &> /dev/null
 fi
