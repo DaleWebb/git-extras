@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+concatargs(){
+    delim='-'
+    str=
+    for i in "$@";   do
+        str="$str$delim$i"
+    done
+    branch=hotfix/${str:1}
+}
+
+if test "$1" = "finish"; then
+  test -z $2 && echo "hotfix <name> required." 1>&2 && exit 1
+  branch=hotfix/$2
+  git checkout master &> /dev/null
+  git pull &> /dev/null
+  git merge --no-ff $branch
+  git push
+  git checkout develop &> /dev/null
+  git pull &> /dev/null
+  git merge --no-ff $branch
+  git push
+  git delete-branch $branch &>/dev/null
+else
+  test -z $1 && echo "hotfix <name> required." 1>&2 && exit 1
+  if test -n "$2"; then
+    concatargs ${@:2}
+  else
+    branch=hotfix/$1
+  fi
+  git checkout master &> /dev/null
+  git checkout -b $branch &> /dev/null
+  test -n $? && git checkout $branch &> /dev/null
+fi
